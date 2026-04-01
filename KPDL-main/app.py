@@ -2,14 +2,17 @@ from flask import Flask, render_template, request
 import numpy as np
 import pandas as pd
 import joblib
-
+import os 
 app = Flask(__name__)
 
 # Tải mô hình và các đối tượng tiền xử lý
-model = joblib.load(r'C:\Users\phanh\Downloads\KPDL-main\KPDL-main\stacking_model.pkl')
-selector = joblib.load(r'C:\Users\phanh\Downloads\KPDL-main\KPDL-main\feature_selector.pkl')
-scaler = joblib.load(r'C:\Users\phanh\Downloads\KPDL-main\KPDL-main\scaler.pkl')
-selected_features = joblib.load(r'C:\Users\phanh\Downloads\KPDL-main\KPDL-main\selected_features.pkl')
+MODEL_DIR = os.path.join(os.path.dirname(__file__), 'models')
+
+# Load các file
+model = joblib.load(os.path.join(MODEL_DIR, 'stacking_model.pkl'))
+selector = joblib.load(os.path.join(MODEL_DIR, 'feature_selector.pkl'))
+scaler = joblib.load(os.path.join(MODEL_DIR, 'scaler.pkl'))
+selected_features = joblib.load(os.path.join(MODEL_DIR, 'selected_features.pkl'))
 
 # Định nghĩa các đặc trưng đầu vào mà người dùng cần nhập
 # Các đặc trưng gốc cần để tính các đặc trưng tương tác
