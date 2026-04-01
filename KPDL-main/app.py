@@ -13,12 +13,12 @@ scaler = joblib.load(os.path.join(MODEL_DIR, 'scaler.pkl'))
 selected_features = joblib.load(os.path.join(MODEL_DIR, 'selected_features.pkl'))
 
 # Input
-age = st.number_input("Age", min_value=0.0, max_value=120.0, value=25.0, step=1.0, format="%.0f")
-gender = st.number_input("Gender", min_value=0.0, max_value=1.0, value=0.0, step=1.0, format="%.0f")
-bp = st.number_input("BloodPressure", min_value=0.0, value=120.0, step=1.0, format="%.0f")
-chol = st.number_input("Cholesterol", min_value=0.0, value=200.0, step=1.0, format="%.0f")
-hr = st.number_input("HeartRate", min_value=0.0, value=70.0, step=1.0, format="%.0f")
-qpf = st.number_input("QuantumPatternFeature", min_value=0.0, value=1.0, step=1.0, format="%.0f")
+age = st.number_input("Age", 0, 120, 25, step=1)
+gender = st.number_input("Gender", 0, 1, 0, step=1)
+bp = st.number_input("BloodPressure", 0, 300, 120, step=1)
+chol = st.number_input("Cholesterol", 0, 600, 200, step=1)
+hr = st.number_input("HeartRate", 0, 300, 70, step=1)
+qpf = st.number_input("QuantumPatternFeature", 0, 100, 1, step=1)
 
 if st.button("Dự đoán"):
     df = pd.DataFrame([{
