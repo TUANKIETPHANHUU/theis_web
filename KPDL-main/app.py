@@ -4,7 +4,6 @@ import numpy as np
 import joblib
 import os
 import altair as alt
-import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix
 
@@ -29,10 +28,17 @@ def load_model():
 
 @st.cache_data
 def load_data():
-    return pd.read_csv("KPDL-main/Heart Prediction Quantum Dataset.csv")  # sửa đúng tên file dataset của bạn
+    return pd.read_csv("data.csv")
 
 model, scaler, selected_features = load_model()
 df = load_data()
+
+# ====== FEATURE ENGINEERING (FIX LỖI CHÍNH) ======
+def feature_engineering(df):
+    df = df.copy()
+    df['BP_Cholesterol'] = df['BloodPressure'] * df['Cholesterol']
+    df['Age_BP'] = df['Age'] * df['BloodPressure']
+    return df
 
 # =========================
 # ====== PAGE 1: EDA ======
@@ -46,32 +52,28 @@ if page == "🏠 Giới thiệu & EDA":
     **👨‍🎓 Sinh viên:** Nguyễn Văn A  
     **🆔 MSSV:** 123456  
 
-    👉 Ứng dụng AI giúp dự đoán mức độ bệnh tim nhằm hỗ trợ chẩn đoán sớm.
+    👉 Ứng dụng AI giúp dự đoán mức độ bệnh tim.
     """)
 
     st.subheader("📂 Dữ liệu mẫu")
     st.dataframe(df.head())
 
-    # ===== Biểu đồ 1 =====
     st.subheader("📊 Phân phối nhãn")
-
     fig, ax = plt.subplots()
     df['HeartDisease'].value_counts().plot(kind='bar', ax=ax)
     st.pyplot(fig)
 
-    # ===== Biểu đồ 2 =====
-    st.subheader("📊 Ma trận tương quan")
-
+    st.subheader("📊 Tương quan")
     fig2, ax2 = plt.subplots()
-    sns.heatmap(df.corr(), annot=True, fmt=".2f", ax=ax2)
+    ax2.imshow(df.corr(), cmap='coolwarm')
+    plt.colorbar(ax2.imshow(df.corr(), cmap='coolwarm'))
     st.pyplot(fig2)
 
-    # ===== Nhận xét =====
     st.subheader("🧠 Nhận xét")
     st.write("""
-    - Dữ liệu có dấu hiệu mất cân bằng giữa các lớp.
-    - Một số đặc trưng như Cholesterol, BloodPressure có ảnh hưởng mạnh.
-    - Feature engineering giúp cải thiện mô hình.
+    - Dữ liệu có thể bị lệch giữa các lớp.
+    - Một số đặc trưng ảnh hưởng mạnh như Cholesterol.
+    - Feature engineering giúp tăng độ chính xác.
     """)
 
 # =========================
@@ -106,9 +108,7 @@ elif page == "❤️ Dự đoán":
             'QuantumPatternFeature': qpf
         }])
 
-        # Feature engineering
-        input_df['BP_Cholesterol'] = input_df['BloodPressure'] * input_df['Cholesterol']
-        input_df['Age_BP'] = input_df['Age'] * input_df['BloodPressure']
+        input_df = feature_engineering(input_df)
 
         X = input_df[selected_features]
         X_scaled = scaler.transform(X)
@@ -121,15 +121,14 @@ elif page == "❤️ Dự đoán":
         st.subheader("📊 Kết quả")
 
         if pred == 0:
-            st.success(f"✅ {labels[pred]}")
+            st.success(labels[pred])
         elif pred == 1:
-            st.info(f"⚠️ {labels[pred]}")
+            st.info(labels[pred])
         elif pred == 2:
-            st.warning(f"⚠️ {labels[pred]}")
+            st.warning(labels[pred])
         else:
-            st.error(f"🚨 {labels[pred]}")
+            st.error(labels[pred])
 
-        # ===== Biểu đồ =====
         st.subheader("📈 Xác suất")
 
         proba_df = pd.DataFrame({
@@ -161,18 +160,32 @@ elif page == "📈 Đánh giá":
 
     st.subheader("📊 Confusion Matrix")
 
-    y_true = df['HeartDisease']
-    y_pred = model.predict(scaler.transform(df[selected_features]))
+    df_eval = feature_engineering(df)
+
+    X_eval = df_eval[selected_features]
+    X_scaled = scaler.transform(X_eval)
+
+    y_true = df_eval['HeartDisease']
+    y_pred = model.predict(X_scaled)
 
     cm = confusion_matrix(y_true, y_pred)
 
     fig, ax = plt.subplots()
-    sns.heatmap(cm, annot=True, fmt="d", ax=ax)
+    ax.imshow(cm, cmap='Blues')
+    plt.colorbar(ax.imshow(cm, cmap='Blues'))
+
+    for i in range(len(cm)):
+        for j in range(len(cm)):
+            ax.text(j, i, cm[i, j], ha='center', va='center')
+
+    ax.set_xlabel("Predicted")
+    ax.set_ylabel("Actual")
+
     st.pyplot(fig)
 
     st.subheader("🧠 Nhận xét")
     st.write("""
-    - Mô hình đôi khi nhầm giữa mức Nhẹ và Trung bình.
+    - Mô hình nhầm giữa mức Nhẹ và Trung bình.
     - Cần thêm dữ liệu để cải thiện.
-    - Có thể tối ưu bằng tuning hoặc Deep Learning.
+    - Có thể tuning hoặc dùng deep learning.
     """)
