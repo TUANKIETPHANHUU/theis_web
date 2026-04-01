@@ -13,12 +13,12 @@ scaler = joblib.load(os.path.join(MODEL_DIR, 'scaler.pkl'))
 selected_features = joblib.load(os.path.join(MODEL_DIR, 'selected_features.pkl'))
 
 # Input
-age = st.number_input("Age", 0, 120, 25, step=1, format="%.0f")
-gender = st.number_input("Gender", 0, 1, 0, step=1, format="%.0f")
-bp = st.number_input("BloodPressure", value=120, step=1, format="%.0f")
-chol = st.number_input("Cholesterol", value=200, step=1, format="%.0f")
-hr = st.number_input("HeartRate", value=70, step=1, format="%.0f")
-qpf = st.number_input("QuantumPatternFeature", value=1, step=1, format="%.0f")
+age = st.number_input("Age", min_value=0.0, max_value=120.0, value=25.0, step=1.0, format="%.0f")
+gender = st.number_input("Gender", min_value=0.0, max_value=1.0, value=0.0, step=1.0, format="%.0f")
+bp = st.number_input("BloodPressure", min_value=0.0, value=120.0, step=1.0, format="%.0f")
+chol = st.number_input("Cholesterol", min_value=0.0, value=200.0, step=1.0, format="%.0f")
+hr = st.number_input("HeartRate", min_value=0.0, value=70.0, step=1.0, format="%.0f")
+qpf = st.number_input("QuantumPatternFeature", min_value=0.0, value=1.0, step=1.0, format="%.0f")
 
 if st.button("Dự đoán"):
     df = pd.DataFrame([{
@@ -43,4 +43,4 @@ if st.button("Dự đoán"):
     labels = {0: 'Không bệnh', 1: 'Nhẹ', 2: 'Trung bình', 3: 'Nặng'}
 
     st.success(f"Kết quả: {labels[pred]}")
-    st.write("Xác suất:", proba)
+    st.write("Xác suất:", np.round(proba, 3))
