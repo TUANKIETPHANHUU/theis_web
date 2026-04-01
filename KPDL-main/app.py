@@ -9,10 +9,10 @@ app = Flask(__name__)
 MODEL_DIR = os.path.join(os.path.dirname(__file__), 'models')
 
 # Load các file
-model = joblib.load(os.path.join(MODEL_DIR, 'stacking_model.pkl'))
-selector = joblib.load(os.path.join(MODEL_DIR, 'feature_selector.pkl'))
-scaler = joblib.load(os.path.join(MODEL_DIR, 'scaler.pkl'))
-selected_features = joblib.load(os.path.join(MODEL_DIR, 'selected_features.pkl'))
+
+MODEL_DIR = os.path.join(os.path.dirname(__file__), 'models')
+model_path = os.path.join(MODEL_DIR, 'stacking_model.pkl')
+print(os.path.exists(model_path))  # True nếu file tồn tại
 
 # Định nghĩa các đặc trưng đầu vào mà người dùng cần nhập
 # Các đặc trưng gốc cần để tính các đặc trưng tương tác
