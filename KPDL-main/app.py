@@ -29,7 +29,7 @@ def load_model():
 
 @st.cache_data
 def load_data():
-    return pd.read_csv("data.csv")  # sửa đúng tên file dataset của bạn
+    return pd.read_csv("KPDL-main/Heart Prediction Quantum Dataset.csv")  # sửa đúng tên file dataset của bạn
 
 model, scaler, selected_features = load_model()
 df = load_data()
