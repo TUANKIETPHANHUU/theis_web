@@ -28,7 +28,7 @@ def load_model():
 
 @st.cache_data
 def load_data():
-    return pd.read_csv("data.csv")
+    return pd.read_csv("KPDL-main/Heart Prediction Quantum Dataset.csv")
 
 model, scaler, selected_features = load_model()
 df = load_data()
