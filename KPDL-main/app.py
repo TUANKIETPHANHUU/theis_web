@@ -69,5 +69,5 @@ def index():
 
     return render_template('index.html', prediction=None, error=None, user_data={}, pred_proba=[])
 
-if __name__ == '__main__':
-    app.run(debug=True)
+#if __name__ == '__main__':
+   #// app.run(debug=True)
