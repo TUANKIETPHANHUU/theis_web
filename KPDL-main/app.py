@@ -7,7 +7,7 @@ import os
 st.title("Dự đoán bệnh tim")
 
 # Load model
-MODEL_DIR = os.path.join(os.path.dirname(__file__), 'models')
+MODEL_DIR = os.path.join(os.path.dirname(__file__), 'Model')
 model = joblib.load(os.path.join(MODEL_DIR, 'stacking_model.pkl'))
 scaler = joblib.load(os.path.join(MODEL_DIR, 'scaler.pkl'))
 selected_features = joblib.load(os.path.join(MODEL_DIR, 'selected_features.pkl'))
