@@ -7,17 +7,17 @@ import altair as alt
 import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix
 
-# ====== CONFIG ======
+# ===== CONFIG =====
 st.set_page_config(page_title="Heart Disease App", page_icon="❤️")
 
-# ====== SIDEBAR ======
+# ===== SIDEBAR =====
 st.sidebar.title("📌 Menu")
 page = st.sidebar.radio(
     "Chọn trang",
-    ["🏠 Giới thiệu & EDA", "❤️ Dự đoán", "📈 Đánh giá"]
+    ["🏠 Giới thiệu & EDA", "❤️ Dự đoán", "📈 Đánh giá", "🛠️ Admin"]
 )
 
-# ====== CACHE ======
+# ===== CACHE =====
 @st.cache_resource
 def load_model():
     MODEL_DIR = os.path.join(os.path.dirname(__file__), 'Model')
@@ -33,7 +33,7 @@ def load_data():
 model, scaler, selected_features = load_model()
 df = load_data()
 
-# ====== FEATURE ENGINEERING (FIX LỖI CHÍNH) ======
+# ===== FEATURE ENGINEERING =====
 def feature_engineering(df):
     df = df.copy()
     df['BP_Cholesterol'] = df['BloodPressure'] * df['Cholesterol']
@@ -41,7 +41,7 @@ def feature_engineering(df):
     return df
 
 # =========================
-# ====== PAGE 1: EDA ======
+# PAGE 1: EDA
 # =========================
 if page == "🏠 Giới thiệu & EDA":
 
@@ -71,13 +71,13 @@ if page == "🏠 Giới thiệu & EDA":
 
     st.subheader("🧠 Nhận xét")
     st.write("""
-    - Dữ liệu có thể bị lệch giữa các lớp.
-    - Một số đặc trưng ảnh hưởng mạnh như Cholesterol.
-    - Feature engineering giúp tăng độ chính xác.
+    - Dữ liệu có thể bị lệch.
+    - Cholesterol và BloodPressure ảnh hưởng mạnh.
+    - Feature engineering giúp cải thiện mô hình.
     """)
 
 # =========================
-# ====== PAGE 2: MODEL ====
+# PAGE 2: PREDICT
 # =========================
 elif page == "❤️ Dự đoán":
 
@@ -86,14 +86,14 @@ elif page == "❤️ Dự đoán":
     col1, col2 = st.columns(2)
 
     with col1:
-        age = st.number_input("🎂 Tuổi", 0, 120, step=1)
-        gender = st.selectbox("🚻 Giới tính", ["Nữ", "Nam"])
-        bp = st.number_input("🩸 Huyết áp", step=1)
+        age = st.number_input("Tuổi", 0, 120, step=1)
+        gender = st.selectbox("Giới tính", ["Nữ", "Nam"])
+        bp = st.number_input("Huyết áp", step=1)
 
     with col2:
-        chol = st.number_input("🧪 Cholesterol", step=1)
-        hr = st.number_input("💓 Nhịp tim", step=1)
-        qpf = st.slider("⚛️ Quantum Feature", 0.0, 1.0, 0.5)
+        chol = st.number_input("Cholesterol", step=1)
+        hr = st.number_input("Nhịp tim", step=1)
+        qpf = st.slider("Quantum Feature", 0.0, 1.0, 0.5)
 
     gender = 1 if gender == "Nam" else 0
 
@@ -146,7 +146,7 @@ elif page == "❤️ Dự đoán":
         st.altair_chart(chart, use_container_width=True)
 
 # =========================
-# ====== PAGE 3: EVAL =====
+# PAGE 3: EVALUATION
 # =========================
 elif page == "📈 Đánh giá":
 
@@ -158,8 +158,6 @@ elif page == "📈 Đánh giá":
     - F1-score: 0.90  
     """)
 
-    st.subheader("📊 Confusion Matrix")
-
     df_eval = feature_engineering(df)
 
     X_eval = df_eval[selected_features]
@@ -167,6 +165,8 @@ elif page == "📈 Đánh giá":
 
     y_true = df_eval['HeartDisease']
     y_pred = model.predict(X_scaled)
+
+    st.subheader("📊 Confusion Matrix")
 
     cm = confusion_matrix(y_true, y_pred)
 
@@ -185,7 +185,51 @@ elif page == "📈 Đánh giá":
 
     st.subheader("🧠 Nhận xét")
     st.write("""
-    - Mô hình nhầm giữa mức Nhẹ và Trung bình.
-    - Cần thêm dữ liệu để cải thiện.
-    - Có thể tuning hoặc dùng deep learning.
+    - Nhầm giữa Nhẹ và Trung bình.
+    - Cần thêm dữ liệu.
     """)
+
+# =========================
+# PAGE 4: ADMIN
+# =========================
+elif page == "🛠️ Admin":
+
+    st.title("🛠️ Trang Admin")
+
+    # LOGIN
+    password = st.text_input("🔐 Nhập mật khẩu", type="password")
+
+    if password != "admin123":
+        st.warning("Vui lòng nhập mật khẩu")
+        st.stop()
+
+    st.success("Đăng nhập thành công")
+
+    # METRICS
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Số dòng", df.shape[0])
+    col2.metric("Số cột", df.shape[1])
+    col3.metric("Số feature", len(selected_features))
+
+    st.markdown("---")
+
+    # BIỂU ĐỒ
+    st.subheader("📊 Phân phối bệnh")
+    st.bar_chart(df['HeartDisease'].value_counts())
+
+    st.markdown("---")
+
+    # THỐNG KÊ
+    st.subheader("📋 Thống kê")
+    st.dataframe(df.describe(), use_container_width=True)
+
+    st.markdown("---")
+
+    # XEM DATA
+    st.subheader("📂 Dữ liệu")
+    n = st.slider("Số dòng", 5, 100, 10)
+    st.dataframe(df.head(n), use_container_width=True)
+
+    # DOWNLOAD
+    csv = df.to_csv(index=False).encode('utf-8')
+    st.download_button("⬇️ Download CSV", csv, "data.csv", "text/csv")
